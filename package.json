@@ -1,0 +1,22 @@
+{
+  "displayName": "Mek-Coroutines",
+  "name": "com.pika.mekcoroutines",
+  "version": "0.0.1",
+  "unity": "2019.4",
+  "description": "Useful tools to speed up coding",
+  "keywords": [
+    "mek",
+    "mek-package"
+  ],
+  "category": "Libraries",
+  "author": {
+    "email": "emirhankenter@pika.games",
+    "name": "Memduh Emirhan Kenter",
+    "url": "https://pika.games"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emirhankenter/mek-coroutines.git",
+    "revision": "dc6d4ad5f83d745e8cf91462674846a3411f9e67"
+  }
+}
