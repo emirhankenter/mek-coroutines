@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
+using Random = System.Random;
 
 namespace Mek.Coroutines
 {
@@ -11,6 +13,8 @@ namespace Mek.Coroutines
         public static event Action<string> RoutineFinished; 
         
         private static Dictionary<string, IEnumerator> _coroutineDictionary = new Dictionary<string, IEnumerator>();
+        
+        private static readonly Random _random = new Random();
 
         public static List<string> RoutineKeys => _coroutineDictionary.Keys.ToList();
 
@@ -77,29 +81,30 @@ namespace Mek.Coroutines
 
         #region Helpers
 
-        public static void DoAfterGivenTime(float time, Action onComplete)
+        public static void DoAfterGivenTime(float time, Action onComplete, string key = "")
         {
-            DoAfterTime(time, onComplete);
-        }
-
-        public static void DoAfterFixedUpdate(Action onComplete)
-        {
-            CoroutineWorker.Instance.StartCoroutine(FixedUpdateRoutine());
-
-            IEnumerator FixedUpdateRoutine()
+            if (key == "")
             {
-                yield return new WaitForFixedUpdate();
-                onComplete?.Invoke();
+                key = $"TimeRoutine{GenerateRandomKey()}";
             }
-        }
-        public static void DoAfterCondition(Func<bool> condition, Action onComplete)
-        {
-            CoroutineWorker.Instance.StartCoroutine(ConditionRoutine(condition, () => { onComplete?.Invoke(); }));
+            StartCoroutine(key, TimeRoutine(time, onComplete));
         }
 
-        private static void DoAfterTime(float time, Action onComplete)
+        public static void DoAfterFixedUpdate(Action onComplete, string key = "")
         {
-            CoroutineWorker.Instance.StartCoroutine(TimeRoutine(time, () => { onComplete?.Invoke();}));
+            if (key == "")
+            {
+                key = $"FixedUpdateRoutine{GenerateRandomKey()}";
+            }
+            StartCoroutine(key, FixedUpdateRoutine(onComplete));
+        }
+        public static void DoAfterCondition(Func<bool> condition, Action onComplete, string key = "")
+        {
+            if (key == "")
+            {
+                key = $"ConditionRoutine_{GenerateRandomKey()}";
+            }
+            StartCoroutine(key, ConditionRoutine(condition, onComplete));
         }
 
         private static IEnumerator TimeRoutine(float timer, Action onComplete)
@@ -110,6 +115,12 @@ namespace Mek.Coroutines
                 yield return null;
             }
 
+            onComplete?.Invoke();
+        }
+
+        private static IEnumerator FixedUpdateRoutine(Action onComplete)
+        {
+            yield return new WaitForFixedUpdate();
             onComplete?.Invoke();
         }
 
@@ -129,6 +140,28 @@ namespace Mek.Coroutines
             }
 
             return "";
+        }
+        
+        public static string GenerateRandomKey(int size = 20, bool lowerCase = false)  
+        {  
+            var builder = new StringBuilder(size);  
+  
+            // Unicode/ASCII Letters are divided into two blocks
+            // (Letters 65–90 / 97–122):
+            // The first group containing the uppercase letters and
+            // the second group containing the lowercase.  
+
+            // char is a single Unicode character  
+            char offset = lowerCase ? 'a' : 'A';  
+            const int lettersOffset = 26; // A...Z or a..z: length=26  
+  
+            for (var i = 0; i < size; i++)  
+            {  
+                var @char = (char)_random.Next(offset, offset + lettersOffset);  
+                builder.Append(@char);  
+            }  
+  
+            return lowerCase ? builder.ToString().ToLower() : builder.ToString();  
         }
 
         #endregion
